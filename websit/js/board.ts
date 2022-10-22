@@ -1,3 +1,5 @@
+const chalk = require("chalk");
+
 export class Board<T>{
     piece_list: Array<Array<Piece<T>>>
     type_list: Array<T>
@@ -93,11 +95,11 @@ export class Board<T>{
             let first_piece = this.getPiece(first)
             let second_piece = this.getPiece(second)
             let first_copy = first_piece?.copy()
-            first_piece?.setType(second_piece?.getType()??first_piece.getType())
-            second_piece?.setType(first_copy?.getType()??second_piece.getType())
-
-            for (var i=0;i<this.listener_list.length;i++){
-                this.listener_list[i].isMoved(first,second)
+            first_piece?.setType(second_piece?.getType() ?? first_piece.getType())
+            second_piece?.setType(first_copy?.getType() ?? second_piece.getType())
+            this.judge(second)
+            for (var i = 0; i < this.listener_list.length; i++) {
+                this.listener_list[i].isMoved(first, second)
             }
         }
     }
@@ -119,6 +121,18 @@ export class Board<T>{
             out_str+=str
         }
         return out_str
+    }
+
+    //Rd logic starts here
+    judge(position: Position){
+        let position_offset: Position[] = []
+        position_offset.push(new Position(position.getRow(),position.getCol()-1),new Position(position.getRow(),position.getCol()+1),new Position(position.getRow()-1,position.getCol()),new Position(position.getRow()+1,position.getCol()))
+        console.log("Judge Loc: ",position.row,position.col)
+        console.log("Judge Val: ",this.getPiece(position)," Surrund: +-1, +-1 ")
+        position_offset.forEach((o,index) => {
+            console.log(chalk.white("Value: ",chalk.bgRed(this.getPiece(o)?.getType())," Offset: [",o.row,o.col,"], sequence: ",index))
+            console.log("CEC")
+        })
     }
 }
 

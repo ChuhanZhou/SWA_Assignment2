@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Position = exports.Piece = exports.Board = void 0;
+const chalk = require("chalk");
 class Board {
     constructor(size, type_list) {
         var _a;
@@ -87,6 +88,7 @@ class Board {
             let first_copy = first_piece === null || first_piece === void 0 ? void 0 : first_piece.copy();
             first_piece === null || first_piece === void 0 ? void 0 : first_piece.setType((_a = second_piece === null || second_piece === void 0 ? void 0 : second_piece.getType()) !== null && _a !== void 0 ? _a : first_piece.getType());
             second_piece === null || second_piece === void 0 ? void 0 : second_piece.setType((_b = first_copy === null || first_copy === void 0 ? void 0 : first_copy.getType()) !== null && _b !== void 0 ? _b : second_piece.getType());
+            this.judge(second);
             for (var i = 0; i < this.listener_list.length; i++) {
                 this.listener_list[i].isMoved(first, second);
             }
@@ -109,6 +111,18 @@ class Board {
             out_str += str;
         }
         return out_str;
+    }
+    //Rd logic starts here
+    judge(position) {
+        let position_offset = [];
+        position_offset.push(new Position(position.getRow(), position.getCol() - 1), new Position(position.getRow(), position.getCol() + 1), new Position(position.getRow() - 1, position.getCol()), new Position(position.getRow() + 1, position.getCol()));
+        console.log("Judge Loc: ", position.row, position.col);
+        console.log("Judge Val: ", this.getPiece(position), " Surrund: +-1, +-1 ");
+        position_offset.forEach((o, index) => {
+            var _a;
+            console.log(chalk.white("Value: ", chalk.bgRed((_a = this.getPiece(o)) === null || _a === void 0 ? void 0 : _a.getType()), " Offset: [", o.row, o.col, "], sequence: ", index));
+            console.log("CEC");
+        });
     }
 }
 exports.Board = Board;
