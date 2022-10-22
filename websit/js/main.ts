@@ -5,6 +5,7 @@ let a = new Board([5,5],type_list)
 console.log(a.toString())
 let listener:BoardListener<string> = {
     isMoved(first: Position, second: Position){
+        a.judge(second)
         console.log(first.toString()+"<==>"+second.toString())
     }
 }

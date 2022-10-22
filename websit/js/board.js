@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Position = exports.Piece = exports.Board = void 0;
 const chalk = require("chalk");
+let result = [];
 class Board {
     constructor(size, type_list) {
         var _a;
@@ -88,7 +89,7 @@ class Board {
             let first_copy = first_piece === null || first_piece === void 0 ? void 0 : first_piece.copy();
             first_piece === null || first_piece === void 0 ? void 0 : first_piece.setType((_a = second_piece === null || second_piece === void 0 ? void 0 : second_piece.getType()) !== null && _a !== void 0 ? _a : first_piece.getType());
             second_piece === null || second_piece === void 0 ? void 0 : second_piece.setType((_b = first_copy === null || first_copy === void 0 ? void 0 : first_copy.getType()) !== null && _b !== void 0 ? _b : second_piece.getType());
-            this.judge(second);
+            // this.judge(second)
             for (var i = 0; i < this.listener_list.length; i++) {
                 this.listener_list[i].isMoved(first, second);
             }
@@ -105,7 +106,12 @@ class Board {
             for (var col_i = 0; col_i < this.size[1]; col_i++) {
                 let position = new Position(row_i, col_i);
                 let type = (_a = this.getPiece(position)) === null || _a === void 0 ? void 0 : _a.getType();
-                str += type + " ";
+                if (type != null) {
+                    str += type + " ";
+                }
+                else {
+                    str += "# ";
+                }
             }
             str += "]\n";
             out_str += str;
@@ -114,15 +120,140 @@ class Board {
     }
     //Rd logic starts here
     judge(position) {
+        var _a;
+        let isExisted = false;
+        let checklist = [];
+        let p_row = position.row;
+        let p_col = position.col;
+        this.createOffset(position);
+        if (result.length >= 3) {
+            let offset_1 = new Position(p_row, p_col - 1);
+            let offset_2 = new Position(p_row, p_col + 1);
+            let offset_3 = new Position(p_row - 1, p_col);
+            let offset_4 = new Position(p_row + 1, p_col);
+            console.log(chalk.red("Offset Check: ", offset_1, offset_2, offset_3, offset_4));
+            console.log(chalk.green("Sucess"));
+            console.log(chalk.green("Result", result));
+            this.remove(position);
+            result.forEach((r, index) => {
+                switch (r.row, r.col) {
+                    case r.row, r.col = offset_1.row, offset_1.col:
+                        console.log(chalk.red("Offset Check: 1/2"));
+                        result.forEach(s => {
+                            if (offset_2.row === s.row && offset_2.col === s.col) {
+                                console.log(chalk.green("Offset Check passed: 1/2"));
+                                isExisted = true;
+                            }
+                        });
+                        if (isExisted) {
+                            checklist.push(r);
+                            isExisted = false;
+                        }
+                        break;
+                    case r.row, r.col = offset_2.row, offset_2.col:
+                        console.log(chalk.red("Offset Check: 2/1"));
+                        result.forEach(s => {
+                            if (offset_1.row === s.row && offset_1.col === s.col) {
+                                console.log(chalk.green("Offset Check passed: 2/1"));
+                                isExisted = true;
+                            }
+                        });
+                        if (isExisted) {
+                            checklist.push(r);
+                            isExisted = false;
+                        }
+                        break;
+                    case r.row, r.col = offset_3.row, offset_3.col:
+                        console.log(chalk.red("Offset Check: 3/4"));
+                        result.forEach(s => {
+                            if (offset_4.row === s.row && offset_4.col === s.col) {
+                                console.log(chalk.green("Offset Check passed: 3/4"));
+                                isExisted = true;
+                            }
+                        });
+                        if (isExisted) {
+                            checklist.push(r);
+                            isExisted = false;
+                        }
+                        break;
+                    case r.row, r.col = offset_4.row, offset_4.col:
+                        console.log(chalk.red("Offset Check: 4/3"));
+                        result.forEach(s => {
+                            if (offset_3.row === s.row && offset_3.col === s.col) {
+                                console.log(chalk.green("Offset Check passed: 4/3"));
+                                isExisted = true;
+                            }
+                        });
+                        if (isExisted) {
+                            checklist.push(r);
+                            isExisted = false;
+                        }
+                        break;
+                }
+            });
+            console.log(chalk.green("Checklist: ", checklist));
+            checklist.forEach(r => {
+                this.remove(r);
+            });
+            console.log("remove");
+            console.log(this.toString());
+            let new_type = this.chooseType(position);
+            (_a = this.getPiece(position)) === null || _a === void 0 ? void 0 : _a.setType(new_type);
+            checklist.forEach((r, index) => {
+                var _a;
+                let new_type = this.chooseType(r);
+                (_a = this.getPiece(r)) === null || _a === void 0 ? void 0 : _a.setType(new_type);
+            });
+            console.log("new");
+            console.log(this.toString());
+        }
+        else {
+            console.log(chalk.red("Failed"));
+            console.log(chalk.red("Result", result));
+        }
+    }
+    createOffset(position) {
+        var _a;
         let position_offset = [];
-        position_offset.push(new Position(position.getRow(), position.getCol() - 1), new Position(position.getRow(), position.getCol() + 1), new Position(position.getRow() - 1, position.getCol()), new Position(position.getRow() + 1, position.getCol()));
-        console.log("Judge Loc: ", position.row, position.col);
-        console.log("Judge Val: ", this.getPiece(position), " Surrund: +-1, +-1 ");
+        let p_row = position.row;
+        let p_col = position.col;
+        let j_type = (_a = this.getPiece(position)) === null || _a === void 0 ? void 0 : _a.getType();
+        let isExisted = false;
+        console.log("Judge Loc: ", p_row, p_col, j_type);
+        position_offset.push(new Position(p_row, p_col - 1), new Position(p_row, p_col + 1), new Position(p_row - 1, p_col), new Position(p_row + 1, p_col));
         position_offset.forEach((o, index) => {
             var _a;
-            console.log(chalk.white("Value: ", chalk.bgRed((_a = this.getPiece(o)) === null || _a === void 0 ? void 0 : _a.getType()), " Offset: [", o.row, o.col, "], sequence: ", index));
-            console.log("CEC");
+            result.forEach(r => {
+                if (p_col === r.col && p_row === r.row) {
+                    isExisted = true;
+                }
+            });
+            // console.log(chalk.white("Value: ", chalk.bgRed(this.getPiece(o)?.getType()), " Surrond: [", o.row, o.col, "], sequence: ", index))
+            if (((_a = this.getPiece(o)) === null || _a === void 0 ? void 0 : _a.getType()) === j_type) {
+                console.log(chalk.green("Match at: ", o.row, o.col, " Size: ", result.length));
+                // console.log(chalk.red("Bool: ",result.indexOf(o) != -1),result.includes(o),result.indexOf(o),o)
+                //if (result.length >= 3) {
+                //    console.log(chalk.bgGreen("Success",result))
+                //    return result
+                //}
+                //else {
+                console.log(chalk.blue("result array: ", result));
+                if (isExisted) {
+                    console.log(chalk.red("Size: ", result.length, " Duplicate: ", o.row, o.col));
+                    console.log(chalk.yellow("List: ", result, " Boolean: ", isExisted));
+                }
+                else {
+                    result.push(o);
+                    console.log(chalk.green("POP: ", chalk.bgGreen(o.row, o.col)), isExisted);
+                    this.createOffset(o);
+                }
+                //}
+            }
+            else {
+                //console.log(chalk.yellow("No Match: "), chalk.cyan(this.getPiece(o)?.getType(), j_type))
+            }
         });
+        return result;
     }
 }
 exports.Board = Board;

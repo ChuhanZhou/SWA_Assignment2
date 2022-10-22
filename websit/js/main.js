@@ -6,6 +6,7 @@ let a = new board_1.Board([5, 5], type_list);
 console.log(a.toString());
 let listener = {
     isMoved(first, second) {
+        a.judge(second);
         console.log(first.toString() + "<==>" + second.toString());
     }
 };
