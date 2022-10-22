@@ -10,5 +10,7 @@ let listener:BoardListener<string> = {
 }
 a.addListener(listener)
 a.move(new Position(1,0),new Position(1,1))
+a.remove(new Position(1,0))
+a.remove(new Position(1,1))
 console.log(a.toString())
 let b = 0

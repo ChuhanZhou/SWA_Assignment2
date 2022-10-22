@@ -63,6 +63,12 @@ class Board {
             target_piece.setType(piece.getType());
         }
     }
+    remove(position) {
+        let target = this.getPiece(position);
+        if (target != undefined) {
+            target.setType(null);
+        }
+    }
     canMove(first, second) {
         let first_piece = this.getPiece(first);
         let second_piece = this.getPiece(second);

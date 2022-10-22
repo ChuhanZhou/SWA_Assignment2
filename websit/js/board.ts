@@ -30,7 +30,7 @@ export class Board<T>{
     }
 
     private chooseType(position:Position):T{
-        let neighbour_type_list = new Map<T,number>()
+        let neighbour_type_list = new Map<T|null,number>()
         let position_list = [[0,1],[0,-1],[1,0],[-1,0]]
         for (var i = 0; i < position_list.length; i++){
             let neighbour_position = new Position(position.getRow()+position_list[i][0],position.getCol()+position_list[i][1])
@@ -67,6 +67,13 @@ export class Board<T>{
         let target_piece = this.getPiece(piece.getPosition())
         if (target_piece!=undefined){
             target_piece.setType(piece.getType())
+        }
+    }
+
+    remove(position:Position){
+        let target = this.getPiece(position)
+        if (target!=undefined){
+            target.setType(null)
         }
     }
 
@@ -120,7 +127,7 @@ export type BoardListener<T> = {
 }
 
 export class Piece<T>{
-    type: T;
+    type: T|null;
     position: Position;
 
     constructor(type: T, position: Position) { 
@@ -128,7 +135,7 @@ export class Piece<T>{
         this.position = position
     }
 
-    getType():T{
+    getType():T|null{
         return this.type
     }
 
@@ -136,7 +143,7 @@ export class Piece<T>{
         return this.position
     }
 
-    setType(type: T){
+    setType(type: T|null){
         this.type = type
     }
 
@@ -150,7 +157,7 @@ export class Piece<T>{
         return length==1
     }
 
-    copy():Piece<T>{
+    copy():Piece<T|null>{
         return new Piece(this.type,this.position.copy())
     }
 
