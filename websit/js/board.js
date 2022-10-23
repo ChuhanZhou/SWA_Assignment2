@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Position = exports.Piece = exports.Board = void 0;
-const chalk = require("chalk");
 class Board {
     constructor(size, type_list) {
         var _a;
@@ -121,96 +120,153 @@ class Board {
         var _a, _b;
         let first_row = [];
         let first_col = [];
+        let opt = false;
         if (l_position == null) {
             for (var row_i = 0; row_i < this.size[0]; row_i++) {
                 let s_position = new Position(row_i, 0);
+                let cpt = (this.hoi_check(s_position));
+                if (cpt) {
+                    opt = true;
+                }
                 let type = (_a = this.getPiece(s_position)) === null || _a === void 0 ? void 0 : _a.getType();
                 first_row.push(type);
             }
             // console.log(first_row)
             for (var col_i = 0; col_i < this.size[1]; col_i++) {
                 let s_position = new Position(0, col_i);
-                this.vet_check(s_position);
+                let cpt = (this.vet_check(s_position));
+                if (cpt) {
+                    opt = true;
+                }
                 let type = (_b = this.getPiece(s_position)) === null || _b === void 0 ? void 0 : _b.getType();
                 first_col.push(type);
             }
         }
         else {
             l_position.forEach(pos => {
-                console.log(chalk.bgGreen("Start checking vet single position", pos.row, pos.col));
-                this.vet_check(pos);
-                console.log(chalk.bgGreen("Start checking hoi single position", pos.row, pos.col));
-                this.hoi_check(pos);
+                //console.log(chalk.bgGreen("Start checking vet single position", pos.row, pos.col))
+                let cpt = (this.hoi_check(pos));
+                if (cpt) {
+                    opt = true;
+                }
+                //console.log(chalk.bgBlue("Start checking hoi single position", pos.row, pos.col))
+                let kpt = (this.hoi_check(pos));
+                if (kpt) {
+                    opt = true;
+                }
             });
         }
+        return opt;
     }
     // console.log(first_col)
     vet_check(position) {
-        var _a, _b, _c;
+        var _a, _b;
+        let removed = false;
         let x = 0;
         let position_array = [];
         let col = position.col;
         let row = position.row;
         let start_point = new Position(x, col);
-        console.log(chalk.yellow("Starting VET check at ", start_point.row, start_point.col));
+        //console.log(chalk.yellow("Starting VET check at ", start_point.row, start_point.col));
         position_array.push(start_point);
         for (var i = 1; i < this.size[1]; i++) {
+            // console.log(chalk.bgRed("SEQ",x));
             let check_point = new Position(i, col);
             // console.log(chalk.cyan("Checking", check_point.row, check_point.col, "|", this.getPiece(check_point)?.getType()));
             if (((_a = this.getPiece(start_point)) === null || _a === void 0 ? void 0 : _a.getType()) == ((_b = this.getPiece(check_point)) === null || _b === void 0 ? void 0 : _b.getType())) {
                 position_array.push(check_point);
-                console.log(chalk.green("Pushing into array, array size:", position_array.length, " pushed content:", (_c = this.getPiece(check_point)) === null || _c === void 0 ? void 0 : _c.getType(), "Array: ", position_array));
-                x += 1;
+                //console.log(chalk.bgRed(check_point.col + 1 >= this.size[1] && position_array.length >= 3 || check_point.col - 1 <= 0 && position_array.length >= 3 || check_point.row + 1 >= this.size[0] && position_array.length >= 3 || check_point.row - 1 <= 0 && position_array.length >= 3));
+                if (check_point.col + 1 >= this.size[1] && position_array.length >= 3 || check_point.col - 1 <= 0 && position_array.length >= 3 || check_point.row + 1 >= this.size[0] && position_array.length >= 3 || check_point.row - 1 <= 0 && position_array.length >= 3) {
+                    //console.log(chalk.green("Array compelete, size: ", position_array.length, "| Array content: ", position_array))
+                    position_array.forEach(po => {
+                        this.remove(po);
+                    });
+                    removed = true;
+                    //console.log(chalk.cyan("Element removed in chart, position: ", position_array))
+                    position_array = [];
+                    x += 1;
+                    start_point = new Position(x, col);
+                }
+                else {
+                    //console.log(chalk.green("Pushing into array, array size:", position_array.length, " pushed content:", this.getPiece(check_point)?.getType(), "Array: ", position_array))
+                    x += 1;
+                    start_point = new Position(x, col);
+                }
             }
             else {
                 if (position_array.length >= 3) {
                     //满足条件删除（>=3）
-                    console.log(chalk.green("Array compelete, size: ", position_array.length, "| Array content: ", position_array));
+                    //console.log(chalk.green("Array compelete, size: ", position_array.length, "| Array content: ", position_array))
                     position_array.forEach(po => {
                         this.remove(po);
                     });
-                    console.log(chalk.cyan("Element removed in chart, position: ", position_array));
+                    //console.log(chalk.cyan("Element removed in chart, position: ", position_array))
+                    position_array = [];
+                    x += 1;
+                    start_point = new Position(x, col);
                 }
-                // console.log(chalk.red("Cleaning array :", " pushed new content:", this.getPiece(check_point)?.getType(), "Not Match with ", this.getPiece(start_point)?.getType()))
+                //console.log(chalk.red("Cleaning array :", " pushed new content:", this.getPiece(check_point)?.getType(), "Not Match with ", this.getPiece(start_point)?.getType()))
                 position_array = [];
                 position_array.push(check_point);
+                //console.log(chalk.cyan("EXM", check_point.row, check_point.col, this.getPiece(check_point)?.getType(), "|", start_point.row, start_point.col, this.getPiece(start_point)?.getType()))
                 x += 1;
+                start_point = new Position(x, col);
             }
         }
-        console.log(chalk.red("Array checking compelete"));
+        return removed;
+        //console.log(chalk.red("Array checking compelete"))
     }
     hoi_check(position) {
-        var _a, _b, _c, _d, _e, _f;
+        var _a, _b;
+        let removed = false;
         let x = 0;
         let position_array_h = [];
         let col = position.col;
         let row = position.row;
         let start_point_h = new Position(row, x);
-        console.log(chalk.yellow("Starting HOI check at ", start_point_h.row, start_point_h.col, (_a = this.getPiece(start_point_h)) === null || _a === void 0 ? void 0 : _a.getType()));
+        //console.log(chalk.yellow("Starting HOI check at ", start_point_h.row, start_point_h.col, this.getPiece(start_point_h)?.getType()));
         position_array_h.push(start_point_h);
         // console.log(position_array);
         for (var i = 1; i < this.size[0]; i++) {
             let check_point_h = new Position(row, i);
-            if (((_b = this.getPiece(start_point_h)) === null || _b === void 0 ? void 0 : _b.getType()) == ((_c = this.getPiece(check_point_h)) === null || _c === void 0 ? void 0 : _c.getType())) {
+            if (((_a = this.getPiece(start_point_h)) === null || _a === void 0 ? void 0 : _a.getType()) == ((_b = this.getPiece(check_point_h)) === null || _b === void 0 ? void 0 : _b.getType())) {
                 position_array_h.push(check_point_h);
-                console.log(chalk.green("Pushing into array, array size:", position_array_h.length, " pushed content:", (_d = this.getPiece(check_point_h)) === null || _d === void 0 ? void 0 : _d.getType(), "Array: ", position_array_h));
-                x += 1;
+                if (check_point_h.col + 1 >= this.size[1] && position_array_h.length >= 3 || check_point_h.col - 1 <= 0 && position_array_h.length >= 3 || check_point_h.row + 1 >= this.size[0] && position_array_h.length >= 3 || check_point_h.row - 1 <= 0 && position_array_h.length >= 3) {
+                    //console.log(chalk.green("Array compelete, size: ", position_array_h.length, "| Array content: ", position_array_h))
+                    position_array_h.forEach(po => {
+                        this.remove(po);
+                    });
+                    removed = true;
+                    //console.log(chalk.cyan("Element removed in chart, position: ", position_array_h))
+                    position_array_h = [];
+                    x += 1;
+                    start_point_h = new Position(row, x);
+                }
+                else {
+                    //console.log(chalk.green("Pushing into array, array size:", position_array_h.length, " pushed content:", this.getPiece(check_point_h)?.getType(), "Array: ", position_array_h))
+                    x += 1;
+                    start_point_h = new Position(row, x);
+                }
             }
             else {
                 if (position_array_h.length >= 3) {
                     //满足条件删除（>=3）
-                    console.log(chalk.green("Array compelete, size: ", position_array_h.length, "| Array content: ", position_array_h));
+                    //console.log(chalk.green("Array compelete, size: ", position_array_h.length, "| Array content: ", position_array_h))
                     position_array_h.forEach(po => {
                         this.remove(po);
                     });
-                    console.log(chalk.cyan("Element removed in chart, position: ", position_array_h));
+                    x += 1;
+                    start_point_h = new Position(row, x);
+                    //console.log(chalk.cyan("Element removed in chart, position: ", position_array_h))
                 }
-                console.log(chalk.red("Cleaning array :", " pushed new content:", (_e = this.getPiece(check_point_h)) === null || _e === void 0 ? void 0 : _e.getType(), "Not Match with ", (_f = this.getPiece(start_point_h)) === null || _f === void 0 ? void 0 : _f.getType()));
+                //console.log(chalk.red("Cleaning array :", " pushed new content:", this.getPiece(check_point_h)?.getType(), "Not Match with ", this.getPiece(start_point_h)?.getType()))
                 position_array_h = [];
                 position_array_h.push(check_point_h);
                 x += 1;
+                start_point_h = new Position(row, x);
             }
         }
+        return removed;
     }
 }
 exports.Board = Board;
@@ -264,138 +320,3 @@ class Position {
     }
 }
 exports.Position = Position;
-// //Rd logic starts here
-// judge(position: Position) {
-//     let isExisted = false
-//     let checklist: Position[] = []
-//     let p_row = position.row
-//     let p_col = position.col
-//     this.createOffset(position)
-//     if (result.length >= 3) {
-//         let offset_1 = new Position(p_row, p_col - 1)
-//         let offset_2 = new Position(p_row, p_col + 1)
-//         let offset_3 = new Position(p_row - 1, p_col)
-//         let offset_4 = new Position(p_row + 1, p_col)
-//         console.log(chalk.red("Offset Check: ", offset_1, offset_2, offset_3, offset_4))
-//         console.log(chalk.green("Sucess"))
-//         console.log(chalk.green("Result", result))
-//         this.remove(position)
-//         result.forEach((r, index) => {
-//             switch (r.row, r.col) {
-//                 case r.row, r.col = offset_1.row, offset_1.col:
-//                     console.log(chalk.red("Offset Check: 1/2"))
-//                     result.forEach(s => {
-//                         if (offset_2.row === s.row && offset_2.col === s.col) {
-//                             console.log(chalk.green("Offset Check passed: 1/2"))
-//                             isExisted = true
-//                         }
-//                     })
-//                     if (isExisted) {
-//                         checklist.push(r)
-//                         isExisted = false
-//                     }
-//                     break;
-//                 case r.row, r.col = offset_2.row, offset_2.col:
-//                     console.log(chalk.red("Offset Check: 2/1"))
-//                     result.forEach(s => {
-//                         if (offset_1.row === s.row && offset_1.col === s.col) {
-//                             console.log(chalk.green("Offset Check passed: 2/1"))
-//                             isExisted = true
-//                         }
-//                     })
-//                     if (isExisted) {
-//                         checklist.push(r)
-//                         isExisted = false
-//                     }
-//                     break;
-//                 case r.row, r.col = offset_3.row, offset_3.col:
-//                     console.log(chalk.red("Offset Check: 3/4"))
-//                     result.forEach(s => {
-//                         if (offset_4.row === s.row && offset_4.col === s.col) {
-//                             console.log(chalk.green("Offset Check passed: 3/4"))
-//                             isExisted = true
-//                         }
-//                     })
-//                     if (isExisted) {
-//                         checklist.push(r)
-//                         isExisted = false
-//                     }
-//                     break;
-//                 case r.row, r.col = offset_4.row, offset_4.col:
-//                     console.log(chalk.red("Offset Check: 4/3"))
-//                     result.forEach(s => {
-//                         if (offset_3.row === s.row && offset_3.col === s.col) {
-//                             console.log(chalk.green("Offset Check passed: 4/3"))
-//                             isExisted = true
-//                         }
-//                     })
-//                     if (isExisted) {
-//                         checklist.push(r)
-//                         isExisted = false
-//                     }
-//                     break;
-//             }
-//         })
-//         console.log(chalk.green("Checklist: ", checklist))
-//         checklist.forEach(r => {
-//             this.remove(r)
-//         })
-//         console.log("remove")
-//         console.log(this.toString())
-//
-//         let new_type = this.chooseType(position)
-//         this.getPiece(position)?.setType(new_type)
-//         checklist.forEach((r, index) => {
-//             let new_type = this.chooseType(r)
-//             this.getPiece(r)?.setType(new_type)
-//         })
-//         console.log("new")
-//         console.log(this.toString())
-//     }
-//     else {
-//         console.log(chalk.red("Failed"))
-//         console.log(chalk.red("Result", result))
-//     }
-// }
-//
-// createOffset(position): any {
-//     let position_offset: Position[] = []
-//     let p_row = position.row
-//     let p_col = position.col
-//     let j_type = this.getPiece(position)?.getType()
-//     let isExisted = false
-//     console.log("Judge Loc: ", p_row, p_col, j_type)
-//     position_offset.push(new Position(p_row, p_col - 1), new Position(p_row, p_col + 1), new Position(p_row - 1, p_col), new Position(p_row + 1, p_col))
-//     position_offset.forEach((o, index) => {
-//         result.forEach(r => {
-//             if (p_col === r.col && p_row === r.row) {
-//                 isExisted = true
-//             }
-//         })
-//         // console.log(chalk.white("Value: ", chalk.bgRed(this.getPiece(o)?.getType()), " Surrond: [", o.row, o.col, "], sequence: ", index))
-//         if (this.getPiece(o)?.getType() === j_type) {
-//             console.log(chalk.green("Match at: ", o.row, o.col, " Size: ", result.length))
-//             // console.log(chalk.red("Bool: ",result.indexOf(o) != -1),result.includes(o),result.indexOf(o),o)
-//             //if (result.length >= 3) {
-//             //    console.log(chalk.bgGreen("Success",result))
-//             //    return result
-//             //}
-//             //else {
-//             console.log(chalk.blue("result array: ", result))
-//             if (isExisted) {
-//                 console.log(chalk.red("Size: ", result.length, " Duplicate: ", o.row, o.col))
-//                 console.log(chalk.yellow("List: ", result, " Boolean: ", isExisted))
-//             }
-//             else {
-//                 result.push(o)
-//                 console.log(chalk.green("POP: ", chalk.bgGreen(o.row, o.col)), isExisted)
-//                 this.createOffset(o)
-//             }
-//             //}
-//         }
-//         else {
-//             //console.log(chalk.yellow("No Match: "), chalk.cyan(this.getPiece(o)?.getType(), j_type))
-//         }
-//     })
-//     return result
-// }
