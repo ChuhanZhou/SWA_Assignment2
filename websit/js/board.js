@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Position = exports.Piece = exports.Board = void 0;
-const chalk = require("chalk");
-class Board {
-    constructor(size, type_list) {
+var chalk = require("chalk");
+var Board = /** @class */ (function () {
+    function Board(size, type_list) {
         var _a;
-        let row_size = size[0];
-        let col_size = size[1];
+        var row_size = size[0];
+        var col_size = size[1];
         this.size = [row_size, col_size];
         this.piece_list = [];
         this.type_list = type_list;
@@ -18,83 +18,83 @@ class Board {
         for (var row_i = 0; row_i < row_size; row_i++) {
             this.piece_list.push([]);
             for (var col_i = 0; col_i < col_size; col_i++) {
-                let position = new Position(row_i, col_i);
-                let type = this.chooseType(position);
+                var position = new Position(row_i, col_i);
+                var type = this.chooseType(position);
                 this.type_num_map.set(type, ((_a = this.type_num_map.get(type)) !== null && _a !== void 0 ? _a : 0) + 1);
-                let piece = new Piece(type, position);
+                var piece = new Piece(type, position);
                 this.piece_list[row_i].push(piece);
             }
         }
     }
-    chooseType(position) {
+    Board.prototype.chooseType = function (position) {
         var _a;
-        let neighbour_type_list = new Map();
-        let position_list = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+        var neighbour_type_list = new Map();
+        var position_list = [[0, 1], [0, -1], [1, 0], [-1, 0]];
         for (var i = 0; i < position_list.length; i++) {
-            let neighbour_position = new Position(position.getRow() + position_list[i][0], position.getCol() + position_list[i][1]);
-            let neighbour = this.getPiece(neighbour_position);
+            var neighbour_position = new Position(position.getRow() + position_list[i][0], position.getCol() + position_list[i][1]);
+            var neighbour = this.getPiece(neighbour_position);
             if (neighbour != undefined) {
                 neighbour_type_list.set(neighbour.getType(), 1 + ((_a = neighbour_type_list.get(neighbour.getType())) !== null && _a !== void 0 ? _a : 0));
             }
         }
         //let type_map_sort = Array.from(this.type_num_map).sort(function () { return 0.5 - Math.random() }).sort((a, b) => { return a[1] - b[1] })
-        let type_map_sort = Array.from(this.type_num_map).sort((a, b) => { return a[1] - b[1]; });
-        let out_type = type_map_sort[0][0];
-        let type_num = type_map_sort[0][1];
+        var type_map_sort = Array.from(this.type_num_map).sort(function (a, b) { return a[1] - b[1]; });
+        var out_type = type_map_sort[0][0];
+        var type_num = type_map_sort[0][1];
         for (var i = 0; i < type_map_sort.length; i++) {
-            let type = type_map_sort[i][0];
-            let num = type_map_sort[i][1];
+            var type = type_map_sort[i][0];
+            var num = type_map_sort[i][1];
             if (!neighbour_type_list.has(type)) {
                 out_type = type;
                 break;
             }
         }
         return out_type;
-    }
-    getPiece(position) {
+    };
+    Board.prototype.getPiece = function (position) {
         if (this.piece_list.length > position.getRow() && position.getRow() >= 0) {
             if (this.piece_list[position.getRow()].length > position.getCol() && position.getCol() >= 0) {
                 return this.piece_list[position.getRow()][position.getCol()];
             }
         }
         return undefined;
-    }
-    setPiece(piece) {
-        let target_piece = this.getPiece(piece.getPosition());
+    };
+    Board.prototype.setPiece = function (piece) {
+        var target_piece = this.getPiece(piece.getPosition());
         if (target_piece != undefined) {
             target_piece.setType(piece.getType());
         }
-    }
-    remove(position) {
-        let target = this.getPiece(position);
+    };
+    Board.prototype.remove = function (position) {
+        var target = this.getPiece(position);
         if (target != undefined) {
             target.setType(null);
         }
-    }
-    canMove(first, second) {
-        let first_piece = this.getPiece(first);
-        let second_piece = this.getPiece(second);
+    };
+    Board.prototype.canMove = function (first, second) {
+        var first_piece = this.getPiece(first);
+        var second_piece = this.getPiece(second);
         if (first_piece != undefined && second_piece != undefined) {
             if (first_piece.isNeighbour(second_piece)) {
                 return true;
             }
         }
         return false;
-    }
-    move(first, second) {
+    };
+    Board.prototype.move = function (first, second) {
         var _a, _b;
         if (this.canMove(first, second)) {
-            let first_piece = this.getPiece(first);
-            let second_piece = this.getPiece(second);
-            let first_copy = first_piece === null || first_piece === void 0 ? void 0 : first_piece.copy();
+            var first_piece = this.getPiece(first);
+            var second_piece = this.getPiece(second);
+            var first_copy = first_piece === null || first_piece === void 0 ? void 0 : first_piece.copy();
             first_piece === null || first_piece === void 0 ? void 0 : first_piece.setType((_a = second_piece === null || second_piece === void 0 ? void 0 : second_piece.getType()) !== null && _a !== void 0 ? _a : first_piece.getType());
             second_piece === null || second_piece === void 0 ? void 0 : second_piece.setType((_b = first_copy === null || first_copy === void 0 ? void 0 : first_copy.getType()) !== null && _b !== void 0 ? _b : second_piece.getType());
             for (var i = 0; i < this.listener_list.length; i++) {
                 this.listener_list[i].isMoved(first, second);
             }
         }
-    }
-    moveInRule(first, second) {
+    };
+    Board.prototype.moveInRule = function (first, second) {
         if (this.canMove(first, second)) {
             this.move(first, second);
             if (this.row_decution([first, second])) {
@@ -109,18 +109,18 @@ class Board {
             }
         }
         return false;
-    }
-    addListener(listener) {
+    };
+    Board.prototype.addListener = function (listener) {
         this.listener_list.push(listener);
-    }
-    toString() {
+    };
+    Board.prototype.toString = function () {
         var _a;
-        let out_str = "";
+        var out_str = "";
         for (var row_i = 0; row_i < this.size[0]; row_i++) {
-            let str = "[ ";
+            var str = "[ ";
             for (var col_i = 0; col_i < this.size[1]; col_i++) {
-                let position = new Position(row_i, col_i);
-                let type = (_a = this.getPiece(position)) === null || _a === void 0 ? void 0 : _a.getType();
+                var position = new Position(row_i, col_i);
+                var type = (_a = this.getPiece(position)) === null || _a === void 0 ? void 0 : _a.getType();
                 if (type != null) {
                     str += type + " ";
                 }
@@ -132,17 +132,18 @@ class Board {
             out_str += str;
         }
         return out_str;
-    }
-    pieceDropDown() {
-        let need_type_list = [];
+    };
+    Board.prototype.pieceDropDown = function () {
+        var _this = this;
+        var need_type_list = [];
         for (var col_i = 0; col_i < this.size[1]; col_i++) {
-            let drop_type_list = [];
-            let drop = false;
-            let drop_position = new Position(-1, col_i);
+            var drop_type_list = [];
+            var drop = false;
+            var drop_position = new Position(-1, col_i);
             for (var row_i = this.size[0] - 1; row_i >= 0; row_i--) {
-                let position = new Position(row_i, col_i);
-                let piece = this.getPiece(position);
-                let type = piece === null || piece === void 0 ? void 0 : piece.getType();
+                var position = new Position(row_i, col_i);
+                var piece = this.getPiece(position);
+                var type = piece === null || piece === void 0 ? void 0 : piece.getType();
                 if (type == null && !drop) {
                     drop = true;
                     drop_position = position;
@@ -152,10 +153,10 @@ class Board {
                     piece === null || piece === void 0 ? void 0 : piece.setType(null);
                 }
             }
-            let n = 0;
+            var n = 0;
             for (var row_i = drop_position.getRow(); row_i >= 0; row_i--) {
-                let position = new Position(row_i, col_i);
-                let piece = this.getPiece(position);
+                var position = new Position(row_i, col_i);
+                var piece = this.getPiece(position);
                 if (n < drop_type_list.length) {
                     piece === null || piece === void 0 ? void 0 : piece.setType(drop_type_list[n]);
                     n++;
@@ -165,74 +166,76 @@ class Board {
                 }
             }
         }
-        need_type_list.forEach(piece => {
-            piece.setType(this.chooseType(piece.getPosition()));
+        need_type_list.forEach(function (piece) {
+            piece.setType(_this.chooseType(piece.getPosition()));
         });
-    }
-    row_decution(l_position) {
+    };
+    Board.prototype.row_decution = function (l_position) {
+        var _this = this;
         var _a, _b;
-        let first_row = [];
-        let first_col = [];
-        let opt = false;
+        var first_row = [];
+        var first_col = [];
+        var opt = false;
         if (l_position == null) {
             for (var row_i = 0; row_i < this.size[0]; row_i++) {
-                let s_position = new Position(row_i, 0);
-                let cpt = (this.hoi_check(s_position));
+                var s_position = new Position(row_i, 0);
+                var cpt = (this.hoi_check(s_position));
                 if (cpt) {
                     opt = true;
                 }
-                let type = (_a = this.getPiece(s_position)) === null || _a === void 0 ? void 0 : _a.getType();
+                var type = (_a = this.getPiece(s_position)) === null || _a === void 0 ? void 0 : _a.getType();
                 first_row.push(type);
             }
             // console.log(first_row)
             for (var col_i = 0; col_i < this.size[1]; col_i++) {
-                let s_position = new Position(0, col_i);
-                let cpt = (this.vet_check(s_position));
+                var s_position = new Position(0, col_i);
+                var cpt = (this.vet_check(s_position));
                 if (cpt) {
                     opt = true;
                 }
-                let type = (_b = this.getPiece(s_position)) === null || _b === void 0 ? void 0 : _b.getType();
+                var type = (_b = this.getPiece(s_position)) === null || _b === void 0 ? void 0 : _b.getType();
                 first_col.push(type);
             }
         }
         else {
-            l_position.forEach(pos => {
+            l_position.forEach(function (pos) {
                 //console.log(chalk.bgGreen("Start checking vet single position", pos.row, pos.col))
-                let cpt = (this.vet_check(pos));
+                var cpt = (_this.vet_check(pos));
                 if (cpt) {
                     opt = true;
                 }
                 //console.log(chalk.bgBlue("Start checking hoi single position", pos.row, pos.col))
-                let kpt = (this.hoi_check(pos));
+                var kpt = (_this.hoi_check(pos));
                 if (kpt) {
                     opt = true;
                 }
             });
         }
         return opt;
-    }
+    };
     // console.log(first_col)
-    vet_check(position) {
+    Board.prototype.vet_check = function (position) {
+        var _this = this;
         var _a, _b;
-        let removed = false;
-        let x = 0;
-        let position_array = [];
-        let col = position.col;
-        let row = position.row;
-        let start_point = new Position(x, col);
+        var removed = false;
+        var x = 0;
+        var position_array = [];
+        var col = position.col;
+        var row = position.row;
+        var start_point = new Position(x, col);
         //console.log(chalk.yellow("Starting VET check at ", start_point.row, start_point.col));
         position_array.push(start_point);
         for (var i = 1; i < this.size[1]; i++) {
             // console.log(chalk.bgRed("SEQ",x));
-            let check_point = new Position(i, col);
+            var check_point = new Position(i, col);
             //console.log(chalk.cyan("Checking", check_point.row, check_point.col, "|", this.getPiece(check_point)?.getType()));
             if (((_a = this.getPiece(start_point)) === null || _a === void 0 ? void 0 : _a.getType()) == ((_b = this.getPiece(check_point)) === null || _b === void 0 ? void 0 : _b.getType())) {
                 position_array.push(check_point);
                 //console.log(chalk.bgRed(check_point.col + 1 >= this.size[1] && position_array.length >= 3 || check_point.col - 1 <= 0 && position_array.length >= 3 || check_point.row + 1 >= this.size[0] && position_array.length >= 3 || check_point.row - 1 <= 0 && position_array.length >= 3));
                 if (check_point.col + 1 >= this.size[1] && position_array.length >= 3 || check_point.col - 1 <= 0 && position_array.length >= 3 || check_point.row + 1 >= this.size[0] && position_array.length >= 3 || check_point.row - 1 <= 0 && position_array.length >= 3) {
                     //console.log(chalk.green("Array compelete, size: ", position_array.length, "| Array content: ", position_array))
-                    position_array.forEach(po => {
-                        this.remove(po);
+                    position_array.forEach(function (po) {
+                        _this.remove(po);
                     });
                     removed = true;
                     //console.log(chalk.cyan("Element removed in chart, position: ", position_array))
@@ -250,8 +253,8 @@ class Board {
                 if (position_array.length >= 3) {
                     //满足条件删除（>=3）
                     //console.log(chalk.green("Array compelete, size: ", position_array.length, "| Array content: ", position_array))
-                    position_array.forEach(po => {
-                        this.remove(po);
+                    position_array.forEach(function (po) {
+                        _this.remove(po);
                     });
                     removed = true;
                     //console.log(chalk.cyan("Element removed in chart, position: ", position_array))
@@ -269,26 +272,27 @@ class Board {
         }
         return removed;
         //console.log(chalk.red("Array checking compelete"))
-    }
-    hoi_check(position) {
+    };
+    Board.prototype.hoi_check = function (position) {
+        var _this = this;
         var _a, _b;
-        let removed = false;
-        let x = 0;
-        let position_array_h = [];
-        let col = position.col;
-        let row = position.row;
-        let start_point_h = new Position(row, x);
+        var removed = false;
+        var x = 0;
+        var position_array_h = [];
+        var col = position.col;
+        var row = position.row;
+        var start_point_h = new Position(row, x);
         //console.log(chalk.yellow("Starting HOI check at ", start_point_h.row, start_point_h.col, this.getPiece(start_point_h)?.getType()));
         position_array_h.push(start_point_h);
         // console.log(position_array);
         for (var i = 1; i < this.size[0]; i++) {
-            let check_point_h = new Position(row, i);
+            var check_point_h = new Position(row, i);
             if (((_a = this.getPiece(start_point_h)) === null || _a === void 0 ? void 0 : _a.getType()) == ((_b = this.getPiece(check_point_h)) === null || _b === void 0 ? void 0 : _b.getType())) {
                 position_array_h.push(check_point_h);
                 if (check_point_h.col + 1 >= this.size[1] && position_array_h.length >= 3 || check_point_h.col - 1 <= 0 && position_array_h.length >= 3 || check_point_h.row + 1 >= this.size[0] && position_array_h.length >= 3 || check_point_h.row - 1 <= 0 && position_array_h.length >= 3) {
                     //console.log(chalk.green("Array compelete, size: ", position_array_h.length, "| Array content: ", position_array_h))
-                    position_array_h.forEach(po => {
-                        this.remove(po);
+                    position_array_h.forEach(function (po) {
+                        _this.remove(po);
                     });
                     removed = true;
                     //console.log(chalk.cyan("Element removed in chart, position: ", position_array_h))
@@ -306,8 +310,8 @@ class Board {
                 if (position_array_h.length >= 3) {
                     //满足条件删除（>=3）
                     //console.log(chalk.green("Array compelete, size: ", position_array_h.length, "| Array content: ", position_array_h))
-                    position_array_h.forEach(po => {
-                        this.remove(po);
+                    position_array_h.forEach(function (po) {
+                        _this.remove(po);
                     });
                     removed = true;
                     x += 1;
@@ -322,56 +326,59 @@ class Board {
             }
         }
         return removed;
-    }
-}
+    };
+    return Board;
+}());
 exports.Board = Board;
-class Piece {
-    constructor(type, position) {
+var Piece = /** @class */ (function () {
+    function Piece(type, position) {
         this.type = type;
         this.position = position;
     }
-    getType() {
+    Piece.prototype.getType = function () {
         return this.type;
-    }
-    getPosition() {
+    };
+    Piece.prototype.getPosition = function () {
         return this.position;
-    }
-    setType(type) {
+    };
+    Piece.prototype.setType = function (type) {
         this.type = type;
-    }
-    setPosition(position) {
+    };
+    Piece.prototype.setPosition = function (position) {
         this.position = position;
-    }
-    isNeighbour(other) {
-        let other_position = other.getPosition();
-        let length = Math.sqrt(Math.pow(this.position.getCol() - other_position.getCol(), 2) + Math.pow(this.position.getRow() - other_position.getRow(), 2));
+    };
+    Piece.prototype.isNeighbour = function (other) {
+        var other_position = other.getPosition();
+        var length = Math.sqrt(Math.pow(this.position.getCol() - other_position.getCol(), 2) + Math.pow(this.position.getRow() - other_position.getRow(), 2));
         return length == 1;
-    }
-    copy() {
+    };
+    Piece.prototype.copy = function () {
         return new Piece(this.type, this.position.copy());
-    }
-}
+    };
+    return Piece;
+}());
 exports.Piece = Piece;
-class Position {
-    constructor(row, col) {
+var Position = /** @class */ (function () {
+    function Position(row, col) {
         this.row = row;
         this.col = col;
     }
-    getRow() {
+    Position.prototype.getRow = function () {
         return this.row;
-    }
-    getCol() {
+    };
+    Position.prototype.getCol = function () {
         return this.col;
-    }
-    set(row, col) {
+    };
+    Position.prototype.set = function (row, col) {
         this.row = row;
         this.col = col;
-    }
-    copy() {
+    };
+    Position.prototype.copy = function () {
         return new Position(this.row, this.col);
-    }
-    toString() {
+    };
+    Position.prototype.toString = function () {
         return "[" + this.row + "," + this.col + "]";
-    }
-}
+    };
+    return Position;
+}());
 exports.Position = Position;

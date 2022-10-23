@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const board_1 = require("./board");
-let type_list = ["A", "B", "C", "A"];
+let type_list = ["A", "B", "C"];
 let a = new board_1.Board([5, 5], type_list);
 console.log();
 console.log(a.toString());

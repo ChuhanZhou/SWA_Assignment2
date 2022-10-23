@@ -1,6 +1,6 @@
 import { Board, Position, BoardListener } from './board';
 
-let type_list = ["A","B","C","A"]
+let type_list = ["A","B","C"]
 let a = new Board([5,5],type_list)
 console.log()
 console.log(a.toString())
@@ -29,3 +29,5 @@ a.moveInRule(new Position(1, 1), new Position(1, 2));
 console.log(a.toString());
 //
 let b = 0
+let f =new Position(0,0)
+a.getPiece(f)
