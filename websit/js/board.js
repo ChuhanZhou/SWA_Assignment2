@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Position = exports.Piece = exports.Board = void 0;
+const chalk = require("chalk");
 class Board {
     constructor(size, type_list) {
         var _a;
@@ -96,15 +97,10 @@ class Board {
     moveInRule(first, second) {
         if (this.canMove(first, second)) {
             this.move(first, second);
-            console.log(this.toString());
             if (this.row_decution([first, second])) {
-                console.log(this.toString());
                 this.pieceDropDown();
-                console.log(this.toString());
                 while (this.row_decution(null)) {
-                    console.log(this.toString());
                     this.pieceDropDown();
-                    console.log(this.toString());
                 }
                 return true;
             }
@@ -229,7 +225,7 @@ class Board {
         for (var i = 1; i < this.size[1]; i++) {
             // console.log(chalk.bgRed("SEQ",x));
             let check_point = new Position(i, col);
-            // console.log(chalk.cyan("Checking", check_point.row, check_point.col, "|", this.getPiece(check_point)?.getType()));
+            //console.log(chalk.cyan("Checking", check_point.row, check_point.col, "|", this.getPiece(check_point)?.getType()));
             if (((_a = this.getPiece(start_point)) === null || _a === void 0 ? void 0 : _a.getType()) == ((_b = this.getPiece(check_point)) === null || _b === void 0 ? void 0 : _b.getType())) {
                 position_array.push(check_point);
                 //console.log(chalk.bgRed(check_point.col + 1 >= this.size[1] && position_array.length >= 3 || check_point.col - 1 <= 0 && position_array.length >= 3 || check_point.row + 1 >= this.size[0] && position_array.length >= 3 || check_point.row - 1 <= 0 && position_array.length >= 3));
@@ -257,6 +253,7 @@ class Board {
                     position_array.forEach(po => {
                         this.remove(po);
                     });
+                    removed = true;
                     //console.log(chalk.cyan("Element removed in chart, position: ", position_array))
                     position_array = [];
                     x += 1;
@@ -312,6 +309,7 @@ class Board {
                     position_array_h.forEach(po => {
                         this.remove(po);
                     });
+                    removed = true;
                     x += 1;
                     start_point_h = new Position(row, x);
                     //console.log(chalk.cyan("Element removed in chart, position: ", position_array_h))
