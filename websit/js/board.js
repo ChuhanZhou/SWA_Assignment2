@@ -93,6 +93,27 @@ class Board {
             }
         }
     }
+    moveInRule(first, second) {
+        if (this.canMove(first, second)) {
+            this.move(first, second);
+            console.log(this.toString());
+            if (this.row_decution([first, second])) {
+                console.log(this.toString());
+                this.pieceDropDown();
+                console.log(this.toString());
+                while (this.row_decution(null)) {
+                    console.log(this.toString());
+                    this.pieceDropDown();
+                    console.log(this.toString());
+                }
+                return true;
+            }
+            else {
+                this.move(first, second);
+            }
+        }
+        return false;
+    }
     addListener(listener) {
         this.listener_list.push(listener);
     }
@@ -115,6 +136,42 @@ class Board {
             out_str += str;
         }
         return out_str;
+    }
+    pieceDropDown() {
+        let need_type_list = [];
+        for (var col_i = 0; col_i < this.size[1]; col_i++) {
+            let drop_type_list = [];
+            let drop = false;
+            let drop_position = new Position(-1, col_i);
+            for (var row_i = this.size[0] - 1; row_i >= 0; row_i--) {
+                let position = new Position(row_i, col_i);
+                let piece = this.getPiece(position);
+                let type = piece === null || piece === void 0 ? void 0 : piece.getType();
+                if (type == null && !drop) {
+                    drop = true;
+                    drop_position = position;
+                }
+                else if (type != null && drop) {
+                    drop_type_list.push(type);
+                    piece === null || piece === void 0 ? void 0 : piece.setType(null);
+                }
+            }
+            let n = 0;
+            for (var row_i = drop_position.getRow(); row_i >= 0; row_i--) {
+                let position = new Position(row_i, col_i);
+                let piece = this.getPiece(position);
+                if (n < drop_type_list.length) {
+                    piece === null || piece === void 0 ? void 0 : piece.setType(drop_type_list[n]);
+                    n++;
+                }
+                else if (piece != undefined) {
+                    need_type_list.push(piece);
+                }
+            }
+        }
+        need_type_list.forEach(piece => {
+            piece.setType(this.chooseType(piece.getPosition()));
+        });
     }
     row_decution(l_position) {
         var _a, _b;
@@ -145,7 +202,7 @@ class Board {
         else {
             l_position.forEach(pos => {
                 //console.log(chalk.bgGreen("Start checking vet single position", pos.row, pos.col))
-                let cpt = (this.hoi_check(pos));
+                let cpt = (this.vet_check(pos));
                 if (cpt) {
                     opt = true;
                 }
