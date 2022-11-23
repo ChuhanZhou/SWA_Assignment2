@@ -1,8 +1,10 @@
-
+*{
+    box-sizing: border-box;
+}
 
 .board{
-    width:510px;
-    height:510px;
+    width:550px;
+    height:550px;
     position:absolute;
     background-color: antiquewhite;
     margin-left:400px;
@@ -21,4 +23,9 @@
 
 .board-item:hover{
     background: rgb(176, 176, 176);
+}
+
+.board-item:focus{
+    background: rgb(176, 176, 176);
+    border:2px solid rgb(0, 0, 0);
 }
